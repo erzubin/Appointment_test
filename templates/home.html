@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Appointments</title>
+	<style type="text/css">
+		
+	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css"/>
+	<script>
+$(document).ready(function(){
+	var date_input=$('input[name="date"]'); 
+	var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+	var options={
+		format: 'yyyy-mm-dd',
+		container: container,
+		todayHighlight: true,
+		autoclose: true,
+		};
+	date_input.datepicker(options);
+	$('#apmt_time').timepicker();
+
+$("#submit").click(function(){
+	var data = $('#newform').serialize();	
+			
+	$.ajax({
+		type: "post",
+		url: "/appointments",
+		data: data,
+		success: function(res){
+		getAppointments(res);
+		$('#newform').toggle();
+			$('#new').show();
+			$('#newform').trigger("reset");
+			
+		}
+	}); 
+});
+getAll();
+$('#new').click(function(){
+	$('#newform').toggle();
+	$('#new').hide();
+});
+$('#search').click(function(){
+	var text = $('#searchtext').val();
+	var data = $('#searchform').serialize();
+	if (text != ''){
+		 $.ajax({
+		      type: "post",
+		      url: "/search",
+		      data: data,
+				success: function(res){
+				    getAppointments(res);
+
+				   }
+				}); 
+	}			
+	else{
+		getAll();
+	}
+});
+});
+function getAll()
+{
+	$.ajax({
+	      type: "get",
+	      url: "/appointments",
+			success: function(res){
+				getAppointments(res);
+
+			   }
+			}); 
+}
+
+function getAppointments(res){	
+	var text = '';
+	if(res.length > 0){
+		$.each(res, function( key, value ) {
+		text += '<tr><td>'+value.date+'</td><td>'+value.time+'</td><td>'+value.desc+'</td></tr>';
+		});
+	$('#appointments').empty().append(text);
+	}
+	else{
+		text = '<tr><td colspan="3" style="text-align:center;">No Records Found</td></tr>';
+		$('#appointments').empty().append(text);
+		}
+}
+</script>
+</head>
+<body>
+<div class="container ">
+<h2 style="text-align: center;">Appointments</h2>
+<button type="button" class="btn btn-primary" style="margin: 10px" id="new">New</button>
+
+<form id="newform" style="display: none">
+	{% csrf_token %}
+  <div class="form-group"> <!-- Date input -->
+        <label class="control-label" for="date">Date</label>
+        <input class="form-control" id="apmt_date" required name="date" placeholder="MM/DD/YYY" type="text"/>
+      </div>
+  <div class="form-group">
+    <label>Time</label>
+    <input type="text" name= "time" class="form-control" id="apmt_time"required  placeholder="Time">
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <textarea class="form-control" rows="5" required id="desc" name="desc"></textarea>
+  </div>
+<div class="form-group">
+  <label class="col-md-0 control-label" for="submit"></label>
+    <button id="submit" type="button" class="btn btn-primary" value="1">ADD</button>
+    <a href="/" id="cancel" name="cancel" class="btn btn-default">Cancel</a>
+</div>
+
+</form>
+
+<div style="clear: both;"></div>
+<div class="search-container" >
+    <form id="searchform" style="margin: 10px" >
+      <input type="text" placeholder="Search.." name="search" class="form-control" id="searchtext"
+      style="width: 30% !important;float: left;margin-right:10px">
+      <button type="button" class="btn btn-primary" id="search">Search</button>
+    </form>
+  </div>
+  <div style="clear: both;"></div>
+<table class="table table-bordered table-striped table-hover" style="margin: 10px">
+	<thead>
+		<tr>
+	      <th>Date</th>
+	      <th>Time</th>
+	      <th>Description</th>
+	  </tr>
+
+	</thead>
+  
+  <tbody id="appointments">
+
+ 
+</tbody>
+</table>
+</div><br /><br />
+
+</body>
+</html>
