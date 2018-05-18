@@ -2,6 +2,4 @@ Django==1.11
 python-dateutil==2.7.3
 pytz==2018.4
 six==1.11.0
-gunicorn==19.0.0
-nginx==1.10.3
-uwsgi==2.0.17
+
