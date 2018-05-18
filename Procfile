@@ -1,1 +1,1 @@
-web: gunicorn
+web: gunicorn appointments.wsgi --log-file -
